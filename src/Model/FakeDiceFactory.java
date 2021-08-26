@@ -10,7 +10,6 @@ public class FakeDiceFactory implements IThrowableFactory {
 	
 	public FakeDiceFactory(int...values) {
 		this.values = values;
-		this.generateThrowables();
 	}
 
 	@Override
