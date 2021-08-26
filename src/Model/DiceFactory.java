@@ -10,9 +10,7 @@ public class DiceFactory implements IThrowableFactory {
 	
 	public DiceFactory(int diceAmount, int faces) {
 		this.diceAmount = diceAmount;
-		this.faces = faces;
-		this.generateThrowables();
-		
+		this.faces = faces;	
 	}
 
 	@Override
