@@ -5,7 +5,7 @@ import Interfaces.IThrowable;
 public class Dice implements IThrowable {
 	
 	
-	private IRandomizer randomizer = new Randomizer();
+	private IRandomizer randomizer = new Randomizer();	
 	private int faces;
 	
 	private int upFace = 0;
@@ -20,18 +20,12 @@ public class Dice implements IThrowable {
 
 	@Override
 	public void beThrown() {
-		
-		int face = this.randomizer.getRandom(this.faces);
-		
-		this.upFace = face;
-		
+
+		this.upFace = this.randomizer.getRandom(this.faces);
 	}
 	
 	public boolean wasThrown() {
-		if (this.upFace == 0) {
-			return false;
-		}
-		return true;
+		return this.upFace > 0;
 	}
 
 	@Override
