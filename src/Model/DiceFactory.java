@@ -1,26 +1,33 @@
 package Model;
 import java.util.ArrayList;
 
+import Interfaces.IRandomizer;
 import Interfaces.IThrowable;
 import Interfaces.IThrowableFactory;
 
 public class DiceFactory implements IThrowableFactory {
-	int faces = 0;
-	int diceAmount=0;
 	
-	public DiceFactory(int diceAmount, int faces) {
-		this.diceAmount = diceAmount;
+	int faces = 0;
+	IRandomizer random;
+	
+	public DiceFactory(int faces, IRandomizer random) {
 		this.faces = faces;	
+		this.random = random;
 	}
 
 	@Override
-	public ArrayList<IThrowable> generateThrowables(){
+	public IThrowable generateThrowable(){
+		Dice dice = new Dice(this.faces);
+		dice.setRandomizer(this.random);
+		return dice;
+	}
+
+	public ArrayList<IThrowable> generateThrowables(int amount){
 		
 		ArrayList<IThrowable> dices = new ArrayList<IThrowable>();
 		
-		for(int i = 0; i < this.diceAmount; i++) {
-			Dice d = new Dice(this.faces);
-			dices.add(d);
+		for(int i = 0; i < amount; i++) {
+			dices.add(this.generateThrowable());
 		}
 		
 		return dices;

@@ -27,7 +27,7 @@ public class GameHigherThrow implements IGame {
 
 	@Override
 	public void setUp(int throwableAmount, int throwableFaces,int players) {
-		this.throwables = new DiceFactory(throwableAmount, throwableFaces).generateThrowables();
+		this.throwables = new DiceFactory(throwableFaces, new Randomizer()).generateThrowables(throwableAmount);
 		this.throwers = new PlayerFactory(players).generatePlayers(this);
 	}
 
