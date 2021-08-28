@@ -5,5 +5,5 @@ public interface IThrower {
 	
 	String getName();
 	void throwAll(ArrayList<IThrowable> throwable);
-	void subscribe(IGame game);
+	void subscribe(IThrowerListener listener);
 }

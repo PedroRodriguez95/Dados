@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import Interfaces.IGame;
 import Interfaces.IThrowable;
 import Interfaces.IThrower;
+import Interfaces.IThrowerListener;
 import View.HigherThrowDrawer;
 
-public class GameHigherThrow implements IGame {
+public class GameHigherThrow implements IGame, IThrowerListener {
 	
 	private ArrayList<IThrowable> throwables = new ArrayList<IThrowable>();
 	private ArrayList<IThrower> throwers = new ArrayList<IThrower>();
@@ -14,33 +15,51 @@ public class GameHigherThrow implements IGame {
 	private int score = 0;
 	private IThrower winner;
 	
-	
-	@Override
-	public ArrayList<IThrowable> getThrowables(){
-		return this.throwables;
-	}
-	
-	@Override
-	public ArrayList<IThrower> getThrowers(){
-		return this.throwers;
-	}
-
-	@Override
-	public void setUp(int throwableAmount, int throwableFaces,int players) {
+	public GameHigherThrow(int throwableAmount, int throwableFaces,int players){
 		this.throwables = new DiceFactory(throwableFaces, new Randomizer()).generateThrowables(throwableAmount);
 		this.throwers = new PlayerFactory(players).generatePlayers(this);
 	}
 
 	@Override
-	public void update(IThrower thrower) {
-		
-		int newScore = this.getThrowableSum();
-		
+	public void setUp() {
+		for (IThrower t : this.throwers) {
+			t.throwAll(this.throwables);
+		}
+		this.drawer.drawWInner(this.winner, this.score);
+	}
+
+	@Override
+	public void update() {
+		//Intentionally empty
+	}
+
+	
+	private int getThrowableSum() {
+		int sum = 0;
+		for(IThrowable t : this.throwables) {
+			sum += t.getValue();
+		}
+		return sum;
+	}
+
+	@Override
+	public void onThrow(IThrower thrower, IThrowable throwable) {
+		//Intentionally empty
+	}
+
+	@Override
+	public void onThrowStart(IThrower thrower) {
 		this.drawer.drawThrower(thrower);
+	}
+
+	@Override
+	public void onThrowStop(IThrower thrower) {
+
+		int newScore = this.getThrowableSum();
 		this.drawer.drawThrowables(this.throwables);
 		this.drawer.drawScore(newScore);
 		this.drawer.drawActualRecord(this.score);
-		
+
 		if (this.score == newScore) {
 			this.drawer.drawTieThrow(thrower, newScore);
 			thrower.throwAll(this.throwables);
@@ -50,24 +69,7 @@ public class GameHigherThrow implements IGame {
 			this.score = newScore;
 			this.winner = thrower;
 		}
-	}
-
-	@Override
-	public void start() {
 		
-		for (IThrower t : this.getThrowers()) {
-			t.throwAll(this.getThrowables());
-		}
-		this.drawer.drawWInner(this.winner, this.score);
-		
-	}
-	
-	private int getThrowableSum() {
-		int sum = 0;
-		for(IThrowable t : this.throwables) {
-			sum += t.getValue();
-		}
-		return sum;
 	}
 
 	
