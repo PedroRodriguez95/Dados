@@ -2,6 +2,8 @@ package Model;
 import Interfaces.IRandomizer;
 
 public class FakeRandomizer implements IRandomizer {
+
+	//TODO: recibir una lista de valores en lugar de uno y devolverlos secuencialmente
 	
 	private int testValue;
 	
