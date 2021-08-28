@@ -8,8 +8,6 @@ import Interfaces.IThrowerListener;
 public class Player implements IThrower {
 	
 	private String name;
-
-	//TODO: El jugador no tiene porque conocer el juego
 	private IThrowerListener listener;
 	
 	public Player(String name) {
