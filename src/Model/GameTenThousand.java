@@ -61,6 +61,7 @@ public class GameTenThousand implements IGame, IThrowerListener {
 		return false;
 	}
 
+	//TODO:Hacer que itere entre los jugadores hasta que el juego termine
 	public void start(){
 		for(int i = 0; i < this.throwers.size(); i++ ){
 			this.resetThrowables();
@@ -68,6 +69,8 @@ public class GameTenThousand implements IGame, IThrowerListener {
 			this.controller.play();
 		}
 	}
+
+	//TODO: cambiar por un for convencional
 
 	public void resetThrowables(){
 		for(IThrowable t : this.setAside){
@@ -79,8 +82,9 @@ public class GameTenThousand implements IGame, IThrowerListener {
 	public ArrayList<IThrowable> getThrowables(){
 		return this.throwables;
 	}
-
+	//TODO: crear una iterfaz y separar funcionalidad en distintos validadores
 	public boolean checkSetAsideValidity(int...args){
+		
 		boolean validity = true;
 
 		//Obtengo valores de dados lanzados
@@ -104,15 +108,6 @@ public class GameTenThousand implements IGame, IThrowerListener {
 			}
 		}
 		return validity;
-	}
-
-	private int getScoreFromThrow(int...args){
-		int score;
-		ArrayList<Integer> values = new ArrayList<Integer>();
-		for (int i : args){
-			values.add(this.throwables.get(i-1).getValue());
-		}
-		return 0;
 	}
 	
 }

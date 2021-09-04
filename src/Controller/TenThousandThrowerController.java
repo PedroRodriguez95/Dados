@@ -11,18 +11,15 @@ public class TenThousandThrowerController extends ThrowerController {
     private GameTenThousand game;
     private TenThousandControllerDrawer drawer = new TenThousandControllerDrawer();
     private ValueReaderConsole console = new ValueReaderConsole(new PrinterConsole());
-    private int scoreInHand;
-    private boolean keepPlaying;
 
 
+    //TODO: Borrar todo y hacerlo bien
     public TenThousandThrowerController(GameTenThousand game){
         this.game = game;
     }
 
     @Override
     public void play(){
-        this.scoreInHand = 0;
-        this.keepPlaying = true;
         this.thrower.throwAll(this.game.getThrowables());
         this.drawer.printThrowables(this.game.getThrowables());
         this.drawer.printInitialOptions();
