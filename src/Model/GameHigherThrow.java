@@ -10,22 +10,23 @@ import View.HigherThrowDrawer;
 public class GameHigherThrow implements IGame, IThrowerListener {
 	
 	private ArrayList<IThrowable> throwables = new ArrayList<IThrowable>();
-	private ArrayList<IThrower> throwers = new ArrayList<IThrower>();
+	private ArrayList<Player> players = new ArrayList<Player>();
 	private HigherThrowDrawer drawer = new HigherThrowDrawer();
+	private PlayerNull nullPlayer = new PlayerNull();
 	private int score = 0;
 	private IThrower winner;
 	
-	public GameHigherThrow(int throwableAmount, int throwableFaces,int players){
+	public GameHigherThrow(int throwableAmount, int throwableFaces, int players){
 		this.throwables = new DiceFactory(throwableFaces, new Randomizer()).generateThrowables(throwableAmount);
-		this.throwers = new PlayerFactory(players).generatePlayers(this);
+		this.players = new PlayerFactory().generatePlayers(players, new ThrowerFactory(), this);
 	}
 
 	@Override
 	public void setUp() {
-		for (IThrower t : this.throwers) {
+		for (IThrower t : this.players) {
 			t.throwAll(this.throwables);
 		}
-		this.drawer.drawWInner(this.winner, this.score);
+		this.drawer.drawWinner(this.getPlayer(this.winner), this.score);
 	}
 
 	@Override
@@ -49,7 +50,7 @@ public class GameHigherThrow implements IGame, IThrowerListener {
 
 	@Override
 	public void onThrowStart(IThrower thrower) {
-		this.drawer.drawThrower(thrower);
+		this.drawer.drawThrower(this.getPlayer(thrower));
 	}
 
 	@Override
@@ -61,7 +62,7 @@ public class GameHigherThrow implements IGame, IThrowerListener {
 		this.drawer.drawActualRecord(this.score);
 
 		if (this.score == newScore) {
-			this.drawer.drawTieThrow(thrower, newScore);
+			this.drawer.drawTieThrow(this.getPlayer(thrower), newScore);
 			thrower.throwAll(this.throwables);
 		}
 		if (this.score < newScore) {
@@ -70,6 +71,15 @@ public class GameHigherThrow implements IGame, IThrowerListener {
 			this.winner = thrower;
 		}
 		
+	}
+
+	private Player getPlayer(IThrower thrower) {
+		for (Player p : this.players) {
+			if (p == thrower) {
+				return p;
+			}
+		}
+		return this.nullPlayer;
 	}
 
 	

@@ -3,17 +3,21 @@ import Interfaces.IRandomizer;
 
 public class FakeRandomizer implements IRandomizer {
 
-	//TODO: recibir una lista de valores en lugar de uno y devolverlos secuencialmente
+	private int[] testValues;
+	private int counter;
 	
-	private int testValue;
-	
-	public FakeRandomizer(int testValue ) {
-		this.testValue = testValue;
+	public FakeRandomizer(int[] testValues) {
+		this.testValues = testValues;
+		this.counter = 0;
 	}
 
 	@Override
-	public int getRandom(int amount) {
-		return this.testValue;
+	public int getRandom(int limit) {
+		int value = this.testValues[++counter];
+		if (counter == this.testValues.length) {
+			counter = 0;
+		}
+		return value;
 	}
 
 }
