@@ -8,13 +8,13 @@ import Interfaces.IThrowerListener;
 public class Player implements IThrower {
 	
 	private String name;
-	private IThrowerListener listener;
+	private IThrower wrappedThrower;
 	
-	public Player(String name) {
+	public Player(String name, IThrower thrower) {
 		this.name = name;
+		this.wrappedThrower = thrower;
 	}
 	
-	@Override
 	public String getName() {
 		return this.name;
 	}
@@ -22,17 +22,11 @@ public class Player implements IThrower {
 
 	@Override
 	public void throwAll(ArrayList<IThrowable> throwables) {
-		this.listener.onThrowStart(this);
-		for (IThrowable t : throwables) {
-			t.beThrown();
-			this.listener.onThrow(this, t);
-		}
-		this.listener.onThrowStop(this);
-
+		this.wrappedThrower.throwAll(throwables);
 	}
 
 	@Override
 	public void subscribe(IThrowerListener listener) {
-		this.listener = listener;
+		this.wrappedThrower.subscribe(listener);
 	}
 }

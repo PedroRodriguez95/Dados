@@ -2,13 +2,13 @@ package View;
 import java.util.ArrayList;
 
 import Interfaces.IThrowable;
-import Interfaces.IThrower;
+import Model.Player;
 
 public class HigherThrowDrawer {
 	
-	public void drawThrower(IThrower thrower) {
+	public void drawThrower(Player player) {
 		System.out.println("*************************");
-		System.out.println("Tirador: " + thrower.getName() );
+		System.out.println("Tirador: " + player.getName() );
 	}
 	
 	public void drawThrowables(ArrayList<IThrowable> throwables) {
@@ -23,9 +23,9 @@ public class HigherThrowDrawer {
 		
 	}
 	
-	public void drawTieThrow(IThrower thrower, int score) {
+	public void drawTieThrow(Player player, int score) {
 		System.out.println("*************************");
-		System.out.println("El Jugador " + thrower.getName() + " empata");
+		System.out.println("El Jugador " + player.getName() + " empata");
 		System.out.println("el tiro anterior de " + score +" y ");
 		System.out.println("tira de nuevo");
 		System.out.println("*************************");
@@ -35,9 +35,9 @@ public class HigherThrowDrawer {
 		System.out.println("Record actual: " + score);
 	}
 	
-	public void drawWInner(IThrower thrower, int score) {
+	public void drawWinner(Player player, int score) {
 		System.out.println("*************************");
-		System.out.println("Ganador: " + thrower.getName());
+		System.out.println("Ganador: " + player.getName());
 		System.out.println("Puntaje: " + score);
 		System.out.println("*************************");
 		
