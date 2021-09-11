@@ -33,6 +33,8 @@ public class GameTenThousand implements IGame, IThrowerListener {
 		this.start();
 	}
 
+	//TODO: crear una nueva interfaz y extender la clase player para agregar nuevas responsabilidades
+
 	@Override
 	public void update() {
 	}
@@ -70,13 +72,11 @@ public class GameTenThousand implements IGame, IThrowerListener {
 		}
 	}
 
-	//TODO: cambiar por un for convencional
-
 	public void resetThrowables(){
 		for(IThrowable t : this.setAside){
 			this.throwables.add(t);
-			this.setAside.remove(t);
 		}
+		this.setAside.clear();
 	}
 
 	public ArrayList<IThrowable> getThrowables(){
