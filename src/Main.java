@@ -1,11 +1,11 @@
 import Interfaces.IGame;
-import Model.GameHigherThrow;
+import Model.GameTenThousand;
 
 public class Main {
 
 	public static void main(String[] args) {
 		
-		IGame game = new GameHigherThrow(3,6,3);
+		IGame game = new GameTenThousand(6,6,3);
 		game.setUp();
 	}
 
