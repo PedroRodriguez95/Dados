@@ -1,8 +1,6 @@
 package Model;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import Controller.TenThousandThrowerController;
 import Interfaces.IGame;
@@ -18,6 +16,12 @@ public class GameTenThousand implements IGame, IThrowerListener {
 	private ArrayList<Player> throwers = new ArrayList<Player>();
 	private IThrowerController controller = new TenThousandThrowerController(this);
 	private HashMap<IThrower,Integer> scores = new HashMap<IThrower,Integer>();
+
+	//Verifiers
+	private VerifierTwoOrLessDices twoOrLessDices = new VerifierTwoOrLessDices();
+	private VerifierThreeDices threeDices = new VerifierThreeDices();
+	private VerifierFourDices fourDices = new VerifierFourDices();
+	private VerifierAllDices fiveDices = new VerifierAllDices();
 	
 	public GameTenThousand(int throwableAmount, int throwableFaces,int players){
 		this.throwables = new DiceFactory(throwableFaces, new Randomizer()).generateThrowables(throwableAmount);
@@ -52,20 +56,18 @@ public class GameTenThousand implements IGame, IThrowerListener {
 
 	}
 
-	public boolean setAside(int...args){
-		if (this.checkSetAsideValidity(args)){
-			for (int i : args){
-				this.setAside.add(this.throwables.get(i-1));
-			}
-			this.throwables.removeAll(this.setAside);
-			return true;
-		}
-		return false;
+	public int verifyThrow(ArrayList<IThrowable> throwables) {
+		int tempScore = 0;
+		tempScore += this.fiveDices.verify(throwables);
+		tempScore += this.fourDices.verify(throwables);
+		tempScore += this.threeDices.verify(throwables);
+		tempScore += this.twoOrLessDices.verify(throwables);
+		return tempScore;
 	}
 
 	//TODO:Hacer que itere entre los jugadores hasta que el juego termine
-	public void start(){
-		for(int i = 0; i < this.throwers.size(); i++ ){
+	public void start() {
+		for(int i = 0; i < this.throwers.size(); i++) {
 			this.resetThrowables();
 			this.controller.control(this.throwers.get(i));
 			this.controller.play();
@@ -82,32 +84,5 @@ public class GameTenThousand implements IGame, IThrowerListener {
 	public ArrayList<IThrowable> getThrowables(){
 		return this.throwables;
 	}
-	//TODO: crear una iterfaz y separar funcionalidad en distintos validadores
-	public boolean checkSetAsideValidity(int...args){
-		
-		boolean validity = true;
 
-		//Obtengo valores de dados lanzados
-		ArrayList<Integer> values = new ArrayList<Integer>();
-		for (int i : args){
-			values.add(this.throwables.get(i-1).getValue());
-		}
-
-		//Creo un hashmap y lo lleno con los valores que se repitan 3 o mas veces
-		HashSet<Integer> repetitons = new HashSet<Integer>();		
-		for(int i = 0; i < values.size(); i++) {
-			if(Collections.frequency(values, values.get(i)) >= 3) {
-				repetitons.add(values.get(i));
-			}
-		}
-		//Si cualquiera de los dados no es un 1 o 5 o se repite 3 o mas veces la validacion es falsa
-		for (int i : values) {
-			if( (i != 1 ) && (i != 5) && !repetitons.contains(i)) {
-				validity = false;
-				break;
-			}
-		}
-		return validity;
-	}
-	
 }

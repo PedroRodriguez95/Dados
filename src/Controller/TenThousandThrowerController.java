@@ -59,7 +59,7 @@ public class TenThousandThrowerController extends ThrowerController {
                 {
                     setAsideParameters[i] = setAsideDices.get(i).intValue();
                 }
-                this.game.setAside(setAsideParameters);
+                this.game.verifyThrow(setAsideParameters);
                 break;
             }
             case 2:
