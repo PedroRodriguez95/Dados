@@ -3,26 +3,27 @@ package Model;
 import java.util.ArrayList;
 
 import Interfaces.IThrowable;
-import Interfaces.IThrowableVerifier;
+import Interfaces.IThrowScoreCalculator;
 
-public class VerifierFourDices implements IThrowableVerifier {
+public class VerifierFourDices implements IThrowScoreCalculator {
 
     @Override
-    public int verify(ArrayList<IThrowable> throwables) {
+    public ScoreCalculation calculateScore(ArrayList<IThrowable> throwables) {
+        ArrayList<IThrowable> tempThrowables = new ArrayList<IThrowable>();
         int score = 0;
         for (int j = 0; j <= throwables.size() - 4;) {
             int tempScore = verifyFourEquals(throwables.get(j), throwables.get(j + 1), throwables.get(j + 2),throwables.get(j + 3));
             if (tempScore > 0) {
                 score += tempScore;
-                throwables.remove(j + 3);
-                throwables.remove(j + 2);
-                throwables.remove(j + 1);
-                throwables.remove(j);
+                tempThrowables.add(throwables.get(j + 3));
+                tempThrowables.add(throwables.get(j + 2));
+                tempThrowables.add(throwables.get(j + 1));
+                tempThrowables.add(throwables.get(j));
             } else {
                 j++;
             }
         }
-        return score;
+        return new ScoreCalculation(score, tempThrowables);
 
     }
 

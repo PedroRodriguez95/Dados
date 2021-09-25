@@ -3,36 +3,44 @@ package Model;
 import java.util.ArrayList;
 
 import Interfaces.IThrowable;
-import Interfaces.IThrowableVerifier;
+import Interfaces.IThrowScoreCalculator;
 
-public class VerifierAllDices implements IThrowableVerifier {
+public class VerifierAllDices implements IThrowScoreCalculator {
 
     @Override
-    public int verify(ArrayList<IThrowable> throwables) {
+    public ScoreCalculation calculateScore(ArrayList<IThrowable> throwables) {
+        ArrayList<IThrowable> tempThrowables = new ArrayList<IThrowable>();
         throwables.sort(new ThrowableComparator());
         int score = 0;
         for (int j = 0; j <= throwables.size() - 5;) {
-            int tempScore = verifyFiveEquals(throwables.get(j), throwables.get(j + 1), throwables.get(j + 2), throwables.get(j + 3), throwables.get(j + 4));
+            int tempScore = verifyFiveEquals(throwables) + verifyStraight(throwables);
             if (tempScore > 0) {
                 score += tempScore;
-                throwables.clear();
+                tempThrowables.addAll(throwables);
             } else {
                 j++;
             }
         }
-        return score;
+        return new ScoreCalculation(score, tempThrowables);
+    }
 
-    }
-    //TODO: simplificar para que el metodo reciba un array y no los dados individuales.
-    private int verifyFiveEquals(IThrowable dice1, IThrowable dice2, IThrowable dice3, IThrowable dice4, IThrowable dice5) {
-        if (dice1.getValue() == dice2.getValue() && dice1.getValue() == dice3.getValue() && dice1.getValue() == dice4.getValue() && dice1.getValue() == dice5.getValue()) {
-            if (dice1.getValue() == 1) {
-                return 10000;
+    private int verifyFiveEquals(ArrayList<IThrowable> throwables) {
+
+        int expectedValue = throwables.get(0).getValue();
+        for (int i = 1; i < throwables.size(); i++) {
+            if (throwables.get(i).getValue() != expectedValue) {
+                return 0;
             }
-            return dice1.getValue() * 1000;
         }
-        return 0;
+
+        if (expectedValue == 1) {
+            return 10000;
+        } 
+        
+        return 1000 * expectedValue;
     }
+
+
 
     private int verifyStraight(ArrayList<IThrowable> throwables) {
         for (int i = 1; i < throwables.size(); i++){

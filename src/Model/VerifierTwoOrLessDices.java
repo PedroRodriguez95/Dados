@@ -2,22 +2,23 @@ package Model;
 import java.util.ArrayList;
 
 import Interfaces.IThrowable;
-import Interfaces.IThrowableVerifier;
+import Interfaces.IThrowScoreCalculator;
 
-public class VerifierTwoOrLessDices implements IThrowableVerifier{
+public class VerifierTwoOrLessDices implements IThrowScoreCalculator{
 
     @Override
-    public int verify(ArrayList<IThrowable> throwables) {
+    public ScoreCalculation calculateScore(ArrayList<IThrowable> throwables) {
+        ArrayList<IThrowable> tempThrowables = new ArrayList<IThrowable>();
         int score = 0;
         for (int i = 0; i <= throwables.size() - 2 ; i++) {
             int tempScore = this.calculateScore(throwables.get(i).getValue());
             if (tempScore > 0) {
                 score += tempScore;
-                throwables.remove(i);
+                tempThrowables.add(throwables.get(i));
                 i--;
             }
         }
-        return score;
+        return new ScoreCalculation(score, tempThrowables);
     }
 
     private int calculateScore(int value) {

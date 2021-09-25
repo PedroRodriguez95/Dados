@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import Controller.TenThousandThrowerController;
 import Interfaces.IGame;
+import Interfaces.IThrowScoreCalculator;
 import Interfaces.IThrowable;
 import Interfaces.IThrower;
 import Interfaces.IThrowerController;
@@ -18,10 +19,7 @@ public class GameTenThousand implements IGame, IThrowerListener {
 	private HashMap<IThrower,Integer> scores = new HashMap<IThrower,Integer>();
 
 	//Verifiers
-	private VerifierTwoOrLessDices twoOrLessDices = new VerifierTwoOrLessDices();
-	private VerifierThreeDices threeDices = new VerifierThreeDices();
-	private VerifierFourDices fourDices = new VerifierFourDices();
-	private VerifierAllDices fiveDices = new VerifierAllDices();
+	private IThrowScoreCalculator[] calculators = new IThrowScoreCalculator[] {new VerifierAllDices(), new VerifierFourDices(), new VerifierThreeDices(), new VerifierTwoOrLessDices()};
 	
 	public GameTenThousand(int throwableAmount, int throwableFaces,int players){
 		this.throwables = new DiceFactory(throwableFaces, new Randomizer()).generateThrowables(throwableAmount);
@@ -56,13 +54,18 @@ public class GameTenThousand implements IGame, IThrowerListener {
 
 	}
 
-	public int verifyThrow(ArrayList<IThrowable> throwables) {
+	//TODO: crear clase que encapsule este comportamiento implementando IThrowScoreCalculator
+
+	public ScoreCalculation getScoreFromThrow(ArrayList<IThrowable> throwables) {
 		int tempScore = 0;
-		tempScore += this.fiveDices.verify(throwables);
-		tempScore += this.fourDices.verify(throwables);
-		tempScore += this.threeDices.verify(throwables);
-		tempScore += this.twoOrLessDices.verify(throwables);
-		return tempScore;
+		ArrayList<IThrowable> tempThrowables = new ArrayList<IThrowable>();
+		for ( IThrowScoreCalculator c : this.calculators){
+
+			ScoreCalculation calculation = c.calculateScore(throwables);
+			tempScore += calculation.getScore();
+			tempThrowables.addAll(calculation.getThrowables());
+		}
+		return new ScoreCalculation(tempScore, tempThrowables);
 	}
 
 	//TODO:Hacer que itere entre los jugadores hasta que el juego termine
@@ -71,6 +74,7 @@ public class GameTenThousand implements IGame, IThrowerListener {
 			this.resetThrowables();
 			this.controller.control(this.throwers.get(i));
 			this.controller.play();
+
 		}
 	}
 
