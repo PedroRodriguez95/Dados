@@ -28,12 +28,6 @@ public class GameHigherThrow implements IGame, IThrowerListener {
 		}
 		this.drawer.drawWinner(this.getPlayer(this.winner), this.score);
 	}
-
-	@Override
-	public void update() {
-		//Intentionally empty
-	}
-
 	
 	private int getThrowableSum() {
 		int sum = 0;
@@ -41,11 +35,6 @@ public class GameHigherThrow implements IGame, IThrowerListener {
 			sum += t.getValue();
 		}
 		return sum;
-	}
-
-	@Override
-	public void onThrow(IThrower thrower, IThrowable throwable) {
-		//Intentionally empty
 	}
 
 	@Override

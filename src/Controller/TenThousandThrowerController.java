@@ -25,8 +25,7 @@ public class TenThousandThrowerController implements IThrowerController{
 
     @Override
     public void play() {
-        
-        
+        this.thrower.throwAll(game.getThrowables());
     }
     
 }

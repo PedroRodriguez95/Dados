@@ -2,28 +2,26 @@ package Model;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import Controller.TenThousandThrowerController;
 import Interfaces.IGame;
+import Interfaces.IMenu;
 import Interfaces.IThrowScoreCalculator;
 import Interfaces.IThrowable;
 import Interfaces.IThrower;
-import Interfaces.IThrowerController;
 import Interfaces.IThrowerListener;
 
 public class GameTenThousand implements IGame, IThrowerListener {
 	
 	private ArrayList<IThrowable> throwables = new ArrayList<IThrowable>();
-	private ArrayList<IThrowable> setAside = new ArrayList<IThrowable>();
 	private ArrayList<Player> throwers = new ArrayList<Player>();
-	private IThrowerController controller = new TenThousandThrowerController(this);
+	//private IThrowerController controller = new TenThousandThrowerController(this);
 	private HashMap<IThrower,Integer> scores = new HashMap<IThrower,Integer>();
+	private IThrowScoreCalculator scoreCalculator = new ScoreCalculator(new IThrowScoreCalculator[] { new VerifierAllDices(), new VerifierFourDices(), new VerifierThreeDices(), new VerifierTwoOrLessDices() });
+	private int currentTurn = 0;
 
-	//Verifiers
-	private IThrowScoreCalculator[] calculators = new IThrowScoreCalculator[] {new VerifierAllDices(), new VerifierFourDices(), new VerifierThreeDices(), new VerifierTwoOrLessDices()};
-	
 	public GameTenThousand(int throwableAmount, int throwableFaces,int players){
 		this.throwables = new DiceFactory(throwableFaces, new Randomizer()).generateThrowables(throwableAmount);
 		this.throwers = new PlayerFactory().generatePlayers(players, new ThrowerFactory(), this);
+
 	}
 
 	@Override
@@ -32,18 +30,10 @@ public class GameTenThousand implements IGame, IThrowerListener {
 		for (IThrower t : this.throwers){
 			this.scores.put(t, 0);
 		}
-		this.start();
+		this.throwers.get(this.currentTurn).throwAll(this.throwables);
 	}
 
 	//TODO: crear una nueva interfaz y extender la clase player para agregar nuevas responsabilidades
-
-	@Override
-	public void update() {
-	}
-
-	@Override
-	public void onThrow(IThrower thrower, IThrowable throwable) {
-	}
 
 	@Override
 	public void onThrowStart(IThrower thrower) {
@@ -51,42 +41,32 @@ public class GameTenThousand implements IGame, IThrowerListener {
 
 	@Override
 	public void onThrowStop(IThrower thrower) {
-
-	}
-
-	//TODO: crear clase que encapsule este comportamiento implementando IThrowScoreCalculator
-
-	public ScoreCalculation getScoreFromThrow(ArrayList<IThrowable> throwables) {
-		int tempScore = 0;
-		ArrayList<IThrowable> tempThrowables = new ArrayList<IThrowable>();
-		for ( IThrowScoreCalculator c : this.calculators){
-
-			ScoreCalculation calculation = c.calculateScore(throwables);
-			tempScore += calculation.getScore();
-			tempThrowables.addAll(calculation.getThrowables());
+		ScoreCalculation tempCalculation = this.scoreCalculator.calculateScore(this.throwables);
+		if (tempCalculation.getScore() == 0) {
+			this.nextTurn();
+		} else {
+			IMenu menu = new Menu();
+			menu.addOption(new Option("Anotar Puntaje", this::writeScore));
 		}
-		return new ScoreCalculation(tempScore, tempThrowables);
-	}
-
-	//TODO:Hacer que itere entre los jugadores hasta que el juego termine
-	public void start() {
-		for(int i = 0; i < this.throwers.size(); i++) {
-			this.resetThrowables();
-			this.controller.control(this.throwers.get(i));
-			this.controller.play();
-
-		}
-	}
-
-	public void resetThrowables(){
-		for(IThrowable t : this.setAside){
-			this.throwables.add(t);
-		}
-		this.setAside.clear();
 	}
 
 	public ArrayList<IThrowable> getThrowables(){
 		return this.throwables;
+	}
+
+	private void nextTurn() {
+		this.currentTurn++;
+		if (this.currentTurn >= this.throwers.size()){
+			this.currentTurn = 0;
+		}
+		this.throwers.get(this.currentTurn).throwAll(this.throwables);
+	}
+
+	private void writeScore() {
+		int score = this.scoreCalculator.calculateScore(this.throwables).getScore();
+		IThrower thrower = this.throwers.get(this.currentTurn);
+		this.scores.put(thrower, this.scores.get(thrower) + score);
+		this.nextTurn();
 	}
 
 }

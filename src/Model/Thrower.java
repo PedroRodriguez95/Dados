@@ -16,7 +16,6 @@ public class Thrower implements IThrower {
 		this.listener.onThrowStart(this);
 		for (IThrowable t : throwables) {
 			t.beThrown();
-			this.listener.onThrow(this, t);
 		}
 		this.listener.onThrowStop(this);
 
