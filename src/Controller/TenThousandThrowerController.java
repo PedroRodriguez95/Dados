@@ -1,71 +1,31 @@
 package Controller;
 
-import java.util.ArrayList;
-
+import Interfaces.IThrower;
+import Interfaces.IThrowerController;
 import Model.GameTenThousand;
 import View.PrinterConsole;
 import View.TenThousandControllerDrawer;
 
-public class TenThousandThrowerController extends ThrowerController {
+public class TenThousandThrowerController implements IThrowerController{
 
+    private IThrower thrower;
     private GameTenThousand game;
     private TenThousandControllerDrawer drawer = new TenThousandControllerDrawer();
     private ValueReaderConsole console = new ValueReaderConsole(new PrinterConsole());
 
 
-    //TODO: Borrar todo y hacerlo bien
     public TenThousandThrowerController(GameTenThousand game){
         this.game = game;
     }
 
     @Override
-    public void play(){
-        this.thrower.throwAll(this.game.getThrowables());
-        this.drawer.printThrowables(this.game.getThrowables());
-        this.drawer.printInitialOptions();
-        int option = this.console.readValue(1,2);
-        switch(option){
-            case 1:
-            anotarPuntos();
-            break;
-
-            case 2:
-            break;
-        }
-
+    public void control(IThrower thrower) {
+        this.thrower = thrower;
     }
 
-    public void anotarPuntos(){
-        ArrayList<Integer> setAsideDices = new ArrayList<Integer>();
-        this.drawer.printAsideOptions();
-        int option = this.console.readValue(1,2);
-        switch(option){
-            case 1:
-            while (true){
-                this.drawer.printSetAsideOptions(this.game.getThrowables(),setAsideDices);
-                int selectedDice = this.console.readValue(1, this.game.getThrowables().size() + 1);
-                if(selectedDice > this.game.getThrowables().size()){
-                    break;
-                }
-                if(!setAsideDices.contains(selectedDice)){
-                    setAsideDices.add(selectedDice);
-                }else{
-                    this.drawer.printMessage("Ese dado ya fue seleccionado");
-                }
-            }
-            if(!setAsideDices.isEmpty()){
-                int[] setAsideParameters = new int[setAsideDices.size()];
-                for (int i=0; i < setAsideParameters.length; i++)
-                {
-                    setAsideParameters[i] = setAsideDices.get(i).intValue();
-                }
-                this.game.setAside(setAsideParameters);
-                break;
-            }
-            case 2:
-            break;
-        }
-
+    @Override
+    public void play() {
+        this.thrower.throwAll(game.getThrowables());
     }
-
+    
 }

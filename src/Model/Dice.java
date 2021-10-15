@@ -33,4 +33,5 @@ public class Dice implements IThrowable {
 		return this.upFace;
 		
 	}
+
 }

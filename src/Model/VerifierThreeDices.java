@@ -4,28 +4,26 @@ import java.util.ArrayList;
 
 
 import Interfaces.IThrowable;
-import Interfaces.IThrowableVerifier;
+import Interfaces.IThrowScoreCalculator;
 
-public class VerifierThreeDices implements IThrowableVerifier {
+public class VerifierThreeDices implements IThrowScoreCalculator {
 
     @Override
-    public int verify(ArrayList<IThrowable> throwables) {
+    public ScoreCalculation calculateScore(ArrayList<IThrowable> throwables) {
+        ArrayList<IThrowable> tempThrowables = new ArrayList<IThrowable>();
         int score = 0;
         for (int j = 0; j <= throwables.size() - 3;) {
             int tempScore = verifyThreeEquals(throwables.get(j), throwables.get(j + 1), throwables.get(j + 2));
             if (tempScore > 0) {
                 score += tempScore;
-                throwables.remove(j + 2);
-                throwables.remove(j + 1);
-                throwables.remove(j);
+                tempThrowables.add(throwables.get(j + 2));
+                tempThrowables.add(throwables.get(j + 1));
+                tempThrowables.add(throwables.get(j));
             } else {
                 j++;
             }
         }
-        return score;
-
-        
-        
+        return new ScoreCalculation(score, tempThrowables); 
     }
 
     private int verifyThreeEquals(IThrowable dice1, IThrowable dice2, IThrowable dice3) {

@@ -2,21 +2,31 @@ package Model;
 import java.util.ArrayList;
 
 import Interfaces.IThrowable;
-import Interfaces.IThrowableVerifier;
+import Interfaces.IThrowScoreCalculator;
 
-public class VerifierTwoOrLessDices implements IThrowableVerifier{
+public class VerifierTwoOrLessDices implements IThrowScoreCalculator{
 
     @Override
-    public int verify(ArrayList<IThrowable> throwables) {
+    public ScoreCalculation calculateScore(ArrayList<IThrowable> throwables) {
+        ArrayList<IThrowable> tempThrowables = new ArrayList<IThrowable>();
         int score = 0;
-        for (IThrowable t: throwables){
-            if (t.getValue() == 1){
-                score += 100;
-            }
-            if (t.getValue() == 5){
-                score += 50;
+        for (int i = 0; i <= throwables.size() - 2 ; i++) {
+            int tempScore = this.calculateScore(throwables.get(i).getValue());
+            if (tempScore > 0) {
+                score += tempScore;
+                tempThrowables.add(throwables.get(i));
+                i--;
             }
         }
-        return score;
+        return new ScoreCalculation(score, tempThrowables);
+    }
+
+    private int calculateScore(int value) {
+        if (value == 1) {
+            return 100; 
+        } else if (value == 5) {
+            return 50;
+        }
+        return 0;
     }
 }
