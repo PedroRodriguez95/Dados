@@ -15,7 +15,6 @@ public class VerifierTwoOrLessDices implements IThrowScoreCalculator{
             if (tempScore > 0) {
                 score += tempScore;
                 tempThrowables.add(throwables.get(i));
-                i--;
             }
         }
         return new ScoreCalculation(score, tempThrowables);

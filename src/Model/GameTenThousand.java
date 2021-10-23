@@ -14,9 +14,11 @@ public class GameTenThousand implements IGame, IThrowerListener {
 	
 	private ArrayList<IThrowable> allThrowables = new ArrayList<IThrowable>();
 	private ArrayList<IThrowable> throwablesToThrow = new ArrayList<IThrowable>();
+	private ArrayList<IThrowable> unthrowableThrowables = new ArrayList<IThrowable>();
 	private ArrayList<Player> throwers = new ArrayList<Player>();
 	private HashMap<IThrower,Integer> scores = new HashMap<IThrower,Integer>();
 	private IThrowScoreCalculator scoreCalculator = new ScoreCalculator(new IThrowScoreCalculator[] { new VerifierAllDices(), new VerifierFourDices(), new VerifierThreeDices(), new VerifierTwoOrLessDices() });
+	private ArrayList<ScoreCalculation> tempScoreCalculations = new ArrayList<ScoreCalculation>();
 	private int currentTurn = 0;
 
 	public GameTenThousand(int throwableAmount, int throwableFaces,int players){
@@ -47,7 +49,6 @@ public class GameTenThousand implements IGame, IThrowerListener {
 
 	@Override
 	public void onThrowStop(IThrower thrower) {
-		// TODO: Separar el calculo de puntaje por tirada.
 		ScoreCalculation tempCalculation = this.scoreCalculator.calculateScore(this.throwablesToThrow);
 		if (tempCalculation.getScore() == 0) {
 			this.nextTurn();
@@ -65,13 +66,16 @@ public class GameTenThousand implements IGame, IThrowerListener {
 		if (this.currentTurn >= this.throwers.size()) {
 			this.currentTurn = 0;
 		}
-
+		this.tempScoreCalculations.clear();
 		this.resetThrowables();
 		this.currentPlayerThrowThrowables();
 	}
 
-	private void writeScore() {
-		int score = this.scoreCalculator.calculateScore(this.allThrowables).getScore();
+	private void storeScore() {
+		int score = 0;
+		for (ScoreCalculation s : this.tempScoreCalculations) {
+			score += s.getScore();
+		}
 		IThrower thrower = this.throwers.get(this.currentTurn);
 		this.scores.put(thrower, this.scores.get(thrower) + score);
 		this.nextTurn();
@@ -85,17 +89,17 @@ public class GameTenThousand implements IGame, IThrowerListener {
 		actions.add(this::toggleThirdThrowableSelected); 
 		actions.add(this::toggleFourthThrowableSelected); 
 		actions.add(this::toggleFifthThrowableSelected);
-		// TODO: Solo permitir separar dados que fueron tirados en la tirada actual 
+
 		for (int i = 0; i < this.allThrowables.size(); i++) {
 			IThrowable throwable = this.allThrowables.get(i);
 			String throwableLabel = "" + (i + 1) + " (" + throwable.getValue() + ")";
 			if (this.throwablesToThrow.contains(throwable)) {
 				menu.addOption(new Option("Separar dado " + throwableLabel, actions.get(i)));
-			} else {
-				// TODO: Buscar sinonimo de reintegrar
-				menu.addOption(new Option("Reintegrar dado " + throwableLabel, actions.get(i)));
+			} else if (!this.unthrowableThrowables.contains(throwable)){
+				menu.addOption(new Option("Retornar dado " + throwableLabel, actions.get(i)));
 			}
 		}
+
 		menu.addOption(new Option("Tirar", this::currentPlayerThrowThrowables));
 		menu.addOption(new Option("Cancelar", this::showAfterThrowMenu));
 	} 
@@ -131,16 +135,42 @@ public class GameTenThousand implements IGame, IThrowerListener {
 	}
 
 	private void currentPlayerThrowThrowables() {
+		for (IThrowable t : this.allThrowables) {
+			if (!this.throwablesToThrow.contains(t)) {
+				this.unthrowableThrowables.add(t);
+			}
+		}
+		ArrayList<IThrowable> tempThrowables = this.findUncalculatedThrowables();
+		if (!tempThrowables.isEmpty()) {
+			this.tempScoreCalculations.add(this.scoreCalculator.calculateScore(tempThrowables));
+		}
 		this.throwers.get(this.currentTurn).throwAll(this.throwablesToThrow);
 	}
 	
 	private void showAfterThrowMenu() {
 		IMenu menu = new Menu();
-		menu.addOption(new Option("Anotar Puntaje", this::writeScore));
+		menu.addOption(new Option("Anotar Puntaje", this::storeScore));
 		menu.addOption(new Option("Tirar nuevamente", this::selectThrowablesToThrow));
+
+		//TODO: implementar el menu drawer en el codigo
 
 	}
 
-
+	private ArrayList<IThrowable> findUncalculatedThrowables() {
+		ArrayList<IThrowable> tempThrowables = new ArrayList<IThrowable>();
+		for (IThrowable t : this.unthrowableThrowables) {
+			boolean throwableFound = false;
+			for (ScoreCalculation s : this.tempScoreCalculations) {
+				if (s.getThrowables().contains(t)) {
+					throwableFound = true;
+					break;
+				}
+			}
+			if (!throwableFound) {
+				tempThrowables.add(t);
+			}
+		}
+		return tempThrowables;
+	}
 
 }
