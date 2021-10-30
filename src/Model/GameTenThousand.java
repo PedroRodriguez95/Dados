@@ -2,13 +2,21 @@ package Model;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import Controller.ValueReaderConsole;
 import Interfaces.IAction;
 import Interfaces.IGame;
 import Interfaces.IMenu;
+import Interfaces.IMenuDrawer;
+import Interfaces.IPrinter;
 import Interfaces.IThrowScoreCalculator;
 import Interfaces.IThrowable;
+import Interfaces.IThrowableDrawer;
 import Interfaces.IThrower;
 import Interfaces.IThrowerListener;
+import Interfaces.IValueReader;
+import View.MenuDrawer;
+import View.PrinterConsole;
+import View.ThrowableDrawer;
 
 public class GameTenThousand implements IGame, IThrowerListener {
 	
@@ -20,6 +28,10 @@ public class GameTenThousand implements IGame, IThrowerListener {
 	private IThrowScoreCalculator scoreCalculator = new ScoreCalculator(new IThrowScoreCalculator[] { new VerifierAllDices(), new VerifierFourDices(), new VerifierThreeDices(), new VerifierTwoOrLessDices() });
 	private ArrayList<ScoreCalculation> tempScoreCalculations = new ArrayList<ScoreCalculation>();
 	private int currentTurn = 0;
+	private IPrinter printer = new PrinterConsole();
+	private IMenuDrawer menuDrawer = new MenuDrawer(this.printer);
+	private IThrowableDrawer throwableDrawer = new ThrowableDrawer(this.printer);
+	private IValueReader valueReader = new ValueReaderConsole(this.printer);
 
 	public GameTenThousand(int throwableAmount, int throwableFaces,int players){
 		this.allThrowables = new DiceFactory(throwableFaces, new Randomizer()).generateThrowables(throwableAmount);
@@ -32,6 +44,7 @@ public class GameTenThousand implements IGame, IThrowerListener {
 		for (IThrowable throwable : this.allThrowables) {
 			this.throwablesToThrow.add(throwable);
 		}
+		this.unthrowableThrowables.clear();
 	}
 
 	@Override
@@ -49,7 +62,10 @@ public class GameTenThousand implements IGame, IThrowerListener {
 
 	@Override
 	public void onThrowStop(IThrower thrower) {
-		ScoreCalculation tempCalculation = this.scoreCalculator.calculateScore(this.throwablesToThrow);
+		this.throwableDrawer.drawThrowables(this.allThrowables);
+		ArrayList<IThrowable> tempThrowables = new ArrayList<IThrowable>();
+		tempThrowables.addAll(this.throwablesToThrow);
+		ScoreCalculation tempCalculation = this.scoreCalculator.calculateScore(tempThrowables);
 		if (tempCalculation.getScore() == 0) {
 			this.nextTurn();
 		} else {
@@ -72,10 +88,7 @@ public class GameTenThousand implements IGame, IThrowerListener {
 	}
 
 	private void storeScore() {
-		int score = 0;
-		for (ScoreCalculation s : this.tempScoreCalculations) {
-			score += s.getScore();
-		}
+		int score = this.getTotalScore();
 		IThrower thrower = this.throwers.get(this.currentTurn);
 		this.scores.put(thrower, this.scores.get(thrower) + score);
 		this.nextTurn();
@@ -99,9 +112,18 @@ public class GameTenThousand implements IGame, IThrowerListener {
 				menu.addOption(new Option("Retornar dado " + throwableLabel, actions.get(i)));
 			}
 		}
+		if ( this.getSeparatedThrowables().size() > 0) {
+			menu.addOption(new Option("Anotar dados separados", this::calculateScore));
+		} else {
+			menu.addOption(new Option("Tirar", this::currentPlayerThrowThrowables));
+		}
 
-		menu.addOption(new Option("Tirar", this::currentPlayerThrowThrowables));
-		menu.addOption(new Option("Cancelar", this::showAfterThrowMenu));
+		if ( !this.unthrowableThrowables.isEmpty()) {
+			menu.addOption(new Option("Cancelar", this::showAfterThrowMenu));
+		}
+		this.menuDrawer.drawMenu(menu);
+		int choice = this.valueReader.readValue(1, menu.getOptions().size());
+		menu.execute(choice - 1);
 	} 
 
 	private void toggleThrowableSelected(int atIndex) {
@@ -135,6 +157,7 @@ public class GameTenThousand implements IGame, IThrowerListener {
 	}
 
 	private void currentPlayerThrowThrowables() {
+		this.printer.print("Turno: " + this.throwers.get(this.currentTurn).getName() + " Puntaje: " + this.getPlayerScore(this.currentTurn) );
 		for (IThrowable t : this.allThrowables) {
 			if (!this.throwablesToThrow.contains(t)) {
 				this.unthrowableThrowables.add(t);
@@ -148,11 +171,17 @@ public class GameTenThousand implements IGame, IThrowerListener {
 	}
 	
 	private void showAfterThrowMenu() {
-		IMenu menu = new Menu();
-		menu.addOption(new Option("Anotar Puntaje", this::storeScore));
-		menu.addOption(new Option("Tirar nuevamente", this::selectThrowablesToThrow));
-
-		//TODO: implementar el menu drawer en el codigo
+		int calculation = this.getTotalScore();
+		if ( calculation != 0) {
+			IMenu menu = new Menu();
+			menu.addOption(new Option("Anotar Puntaje (" + calculation + ")", this::storeScore));
+			menu.addOption(new Option("Separar Dados", this::selectThrowablesToThrow));
+			this.menuDrawer.drawMenu(menu);
+			int choice = this.valueReader.readValue(1, menu.getOptions().size());
+			menu.execute(choice - 1);
+		} else {
+			this.selectThrowablesToThrow();
+		}
 
 	}
 
@@ -171,6 +200,37 @@ public class GameTenThousand implements IGame, IThrowerListener {
 			}
 		}
 		return tempThrowables;
+	}
+
+	private int getTotalScore() {
+		int sum = 0;
+		for (ScoreCalculation s : this.tempScoreCalculations) {
+			sum += s.getScore();
+		}
+		return sum;
+	}
+
+	private int getPlayerScore(int playerNumber) {
+		IThrower thrower = this.throwers.get(playerNumber);
+		return this.scores.get(thrower);
+	}
+
+	private ArrayList<IThrowable> getSeparatedThrowables() {
+		ArrayList<IThrowable> tempThrowables = new ArrayList<IThrowable>();
+		for ( IThrowable t : this.allThrowables) {
+			if (!this.unthrowableThrowables.contains(t) && !this.throwablesToThrow.contains(t)) {
+				tempThrowables.add(t);
+			}
+		}
+		return tempThrowables;
+	}
+
+	private void calculateScore() {
+		this.tempScoreCalculations.add(this.scoreCalculator.calculateScore(this.getSeparatedThrowables()));
+		this.selectThrowablesToThrow();
+
+		//TODO: no agregar el calculo si da 0 y mostrar un error
+		//TODO: actualizar las listas de throwablesToThrows y UnthrowableThrowables en base al calculo anterior
 	}
 
 }

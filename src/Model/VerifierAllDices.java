@@ -17,6 +17,7 @@ public class VerifierAllDices implements IThrowScoreCalculator {
             if (tempScore > 0) {
                 score += tempScore;
                 tempThrowables.addAll(throwables);
+                throwables.clear();
             } else {
                 j++;
             }
