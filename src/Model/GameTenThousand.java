@@ -12,6 +12,7 @@ import Interfaces.IPrinter;
 import Interfaces.IThrowScoreCalculator;
 import Interfaces.IThrowable;
 import Interfaces.IThrowableDrawer;
+import Interfaces.IThrowableListManager;
 import Interfaces.IThrower;
 import Interfaces.IThrowerListener;
 import Interfaces.IValueReader;
@@ -24,10 +25,10 @@ public class GameTenThousand implements IGame, IThrowerListener {
 	private ArrayList<IThrowable> allThrowables = new ArrayList<IThrowable>();
 	private ArrayList<IThrowable> throwablesToThrow = new ArrayList<IThrowable>();
 	private ArrayList<IThrowable> unthrowableThrowables = new ArrayList<IThrowable>();
+	private IThrowableListManager listManager = new ThrowableListManagerTenThousand();
 	private ArrayList<Player> players = new ArrayList<Player>();
 	private HashMap<IThrower, Integer> scores = new HashMap<IThrower, Integer>();
-	private IThrowScoreCalculator scoreCalculator = new ScoreCalculator(new IThrowScoreCalculator[] {
-			new VerifierAllDices(), new VerifierFourDices(), new VerifierThreeDices(), new VerifierTwoOrLessDices() });
+	private IThrowScoreCalculator scoreCalculator = new ScoreCalculator(new IThrowScoreCalculator[] {new VerifierAllDices(), new VerifierFourDices(), new VerifierThreeDices(), new VerifierTwoOrLessDices() });
 	private ArrayList<ScoreCalculation> tempScoreCalculations = new ArrayList<ScoreCalculation>();
 	private int currentTurn = 0;
 	private IPrinter printer = new PrinterConsole();
