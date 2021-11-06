@@ -19,6 +19,9 @@ public class VerifierThreeDices implements IThrowScoreCalculator {
                 tempThrowables.add(throwables.get(j + 2));
                 tempThrowables.add(throwables.get(j + 1));
                 tempThrowables.add(throwables.get(j));
+                throwables.remove(j);
+                throwables.remove(j);
+                throwables.remove(j);
             } else {
                 j++;
             }

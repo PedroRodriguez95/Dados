@@ -10,12 +10,11 @@ public class VerifierTwoOrLessDices implements IThrowScoreCalculator{
     public ScoreCalculation calculateScore(ArrayList<IThrowable> throwables) {
         ArrayList<IThrowable> tempThrowables = new ArrayList<IThrowable>();
         int score = 0;
-        for (int i = 0; i <= throwables.size() - 2 ; i++) {
+        for (int i = 0; i <= throwables.size() - 1 ; i++) {
             int tempScore = this.calculateScore(throwables.get(i).getValue());
             if (tempScore > 0) {
                 score += tempScore;
                 tempThrowables.add(throwables.get(i));
-                i--;
             }
         }
         return new ScoreCalculation(score, tempThrowables);

@@ -13,7 +13,8 @@ public class FakeRandomizer implements IRandomizer {
 
 	@Override
 	public int getRandom(int limit) {
-		int value = this.testValues[++counter];
+		int value = this.testValues[this.counter];
+		this.counter++;
 		if (counter == this.testValues.length) {
 			counter = 0;
 		}
